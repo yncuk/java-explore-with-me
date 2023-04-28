@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface StatsService {
     EndpointHit create(EndpointHitDto endpointHitDto);
+
     List<ViewStats> search(String start, String end, String[] uris, Boolean unique);
 }
