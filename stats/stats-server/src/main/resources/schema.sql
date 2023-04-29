@@ -1,9 +1,9 @@
 create table if not exists endpoint_hit
 (
-    id bigserial
-        primary key,
-    name      varchar,
+    id        bigserial
+    primary key,
+    app       varchar,
     uri       varchar,
-    user_ip   varchar,
+    ip        varchar,
     timestamp timestamp
 );

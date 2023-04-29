@@ -32,7 +32,7 @@ public class StatsClient {
 
     public void create() {
         EndpointHitDto endpointHitDto = new EndpointHitDto();
-        endpointHitDto.setNameService(application);
+        endpointHitDto.setApp(application);
 
         try {
             HttpRequest.BodyPublisher bodyPublisher = HttpRequest
@@ -50,5 +50,35 @@ public class StatsClient {
         } catch (Exception e) {
             log.warn(String.valueOf(e));
         }
+    }
+
+    public void search(String start, String end, String[] uris, Boolean unique) {
+        URI uri = URI.create(serverUrl + "/stats?start=" + start + "&end=" + end);
+        if (uris != null && unique != null) {
+            uri = URI.create(serverUrl + "/stats?start=" + start + "&end=" + end + toStringArrayUris(uris) + "&unique=" + unique);
+        } else if (uris != null) {
+            uri = URI.create(serverUrl + "/stats?start=" + start + "&end=" + end + toStringArrayUris(uris));
+        } else if (unique != null) {
+            uri = URI.create(serverUrl + "/stats?start=" + start + "&end=" + end + "&unique=" + unique);
+        }
+        try {
+            HttpRequest createRequest = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .GET()
+                    .header(HttpHeaders.ACCEPT, "application/json")
+                    .build();
+            HttpResponse<Void> response = httpClient.send(createRequest, HttpResponse.BodyHandlers.discarding());
+            log.info(response.toString());
+        } catch (Exception e) {
+            log.warn(String.valueOf(e));
+        }
+    }
+
+    private StringBuilder toStringArrayUris(String[] uris) {
+        StringBuilder str = new StringBuilder();
+        for (String currentUri: uris) {
+            str.append("&uris=").append(currentUri);
+        }
+        return str;
     }
 }

@@ -9,21 +9,26 @@ import java.util.List;
 
 public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> {
 
-    @Query(" select eh from EndpointHit as eh " +
+    @Query(" select eh.uri from EndpointHit as eh " +
             "where eh.timestamp >= ?1 and " +
             "eh.timestamp <= ?2")
-    List<EndpointHit> getAllEndpointHitInTime(Timestamp start, Timestamp end);
+    List<String> getAllEndpointHitInTime(Timestamp start, Timestamp end);
 
-    @Query(" select eh from EndpointHit as eh " +
+    @Query(value = " select distinct on (eh.ip) eh.uri from endpoint_hit as eh " +
+            "where eh.timestamp >= ?1 and " +
+            "eh.timestamp <= ?2", nativeQuery = true)
+    List<String> getAllEndpointHitInTimeUniqueIp(Timestamp start, Timestamp end);
+
+    @Query(" select eh.uri from EndpointHit as eh " +
             "where eh.timestamp >= ?1 and " +
             "eh.timestamp <= ?2 and " +
-            "eh.uri = ?3")
-    List<EndpointHit> getAllEndpointHitInTimeByUri(Timestamp start, Timestamp end, String currentUri);
+            "eh.uri in ?3")
+    List<String> getAllEndpointHitInTimeByUri(Timestamp start, Timestamp end, String[] uris);
 
-    @Query(value = " select distinct on (eh.user_ip) eh.* from endpoint_hit as eh " +
+    @Query(value = " select distinct on (eh.ip) eh.uri from endpoint_hit as eh " +
             "where eh.timestamp >= ?1 and " +
             "eh.timestamp <= ?2 and " +
-            "eh.uri = ?3", nativeQuery = true)
-    List<EndpointHit> getAllEndpointHitInTimeUniqueIp(Timestamp start, Timestamp end, String currentUri);
+            "eh.uri in ?3", nativeQuery = true)
+    List<String> getAllEndpointHitInTimeUniqueIp(Timestamp start, Timestamp end, String[] uris);
 
 }

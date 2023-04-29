@@ -10,9 +10,8 @@ import ru.practicum.model.ViewStats;
 import ru.practicum.repositories.EndpointHitRepository;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,37 +28,37 @@ public class StatsServiceImpl implements StatsService {
     public List<ViewStats> search(String start, String end, String[] uris, Boolean unique) {
         Timestamp startTime = parseStringDate(start);
         Timestamp endTime = parseStringDate(end);
-        List<ViewStats> viewStats = new ArrayList<>();
-        List<EndpointHit> list;
+
+        Set<ViewStats> viewStats = new HashSet<>();
+        List<String> list;
         if (uris != null) {
-            for (String currentUri : uris) {
-                if (unique != null) {
-                    if (unique) {
-                        list = endpointHitRepository.getAllEndpointHitInTimeUniqueIp(startTime, endTime, currentUri);
-                    } else {
-                        list = endpointHitRepository.getAllEndpointHitInTimeByUri(startTime, endTime, currentUri);
-                    }
-                } else {
-                    list = endpointHitRepository.getAllEndpointHitInTimeByUri(startTime, endTime, currentUri);
-                }
+            if (unique != null && unique) {
+                list = endpointHitRepository.getAllEndpointHitInTimeUniqueIp(startTime, endTime, uris);
+            } else {
+                list = endpointHitRepository.getAllEndpointHitInTimeByUri(startTime, endTime, uris);
+            }
+            for (String currentEndpointHit : list) {
                 ViewStats currentViewStats = new ViewStats();
-                currentViewStats.setApp(list.get(0).getNameService());
-                currentViewStats.setUri(currentUri);
-                currentViewStats.setHits(list.size());
+                currentViewStats.setApp("ewm-main-service");
+                currentViewStats.setUri(currentEndpointHit);
+                currentViewStats.setHits(Collections.frequency(list, currentEndpointHit));
                 viewStats.add(currentViewStats);
             }
         } else {
-            list = endpointHitRepository.getAllEndpointHitInTime(startTime, endTime);
-            for (EndpointHit currentEndpointHit : list) {
+            if (unique != null && unique) {
+                list = endpointHitRepository.getAllEndpointHitInTimeUniqueIp(startTime, endTime);
+            } else {
+                list = endpointHitRepository.getAllEndpointHitInTime(startTime, endTime);
+            }
+            for (String currentEndpointHit : list) {
                 ViewStats currentViewStats = new ViewStats();
-                currentViewStats.setApp(currentEndpointHit.getNameService());
-                currentViewStats.setUri(currentEndpointHit.getUri());
-                currentViewStats.setHits(1);
+                currentViewStats.setApp("ewm-main-service");
+                currentViewStats.setUri(currentEndpointHit);
+                currentViewStats.setHits(Collections.frequency(list, currentEndpointHit));
                 viewStats.add(currentViewStats);
             }
         }
-        viewStats.sort(Comparator.comparing(ViewStats::getHits).reversed());
-        return viewStats;
+        return viewStats.stream().sorted(Comparator.comparing(ViewStats::getHits).reversed()).collect(Collectors.toList());
     }
 
     private Timestamp parseStringDate(String date) {

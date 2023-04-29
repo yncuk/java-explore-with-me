@@ -12,8 +12,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EndpointHitDto {
     Long id;
-    String nameService;
+    String app;
     String uri;
-    String userIp;
+    String ip;
     String timestamp;
 }

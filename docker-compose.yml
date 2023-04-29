@@ -6,8 +6,8 @@ services:
       - /var/lib/postgresql/data/
     environment:
       - POSTGRES_DB=ewm_stats
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=ewm_stats
+      - POSTGRES_PASSWORD=ewm_stats
 
   stats-server:
     #image: stats-server:0.0.1-SNAPSHOT
@@ -19,8 +19,8 @@ services:
       - stats-db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm_stats
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=ewm_stats
+      - POSTGRES_PASSWORD=ewm_stats
 
   ewm-service:
     build: main-service
