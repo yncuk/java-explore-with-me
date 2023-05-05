@@ -7,3 +7,5 @@ create table if not exists endpoint_hit
     ip        varchar,
     timestamp timestamp
 );
+create index on endpoint_hit(uri);
+create index on endpoint_hit(timestamp);
