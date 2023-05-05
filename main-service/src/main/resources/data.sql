@@ -1,0 +1,13 @@
+delete from compilations_events;
+delete from compilations;
+AlTER SEQUENCE compilations_id_seq RESTART with 1;
+delete from requests;
+AlTER SEQUENCE requests_id_seq RESTART with 1;
+delete from events;
+AlTER SEQUENCE events_id_seq RESTART with 1;
+delete from locations;
+AlTER SEQUENCE locations_id_seq RESTART with 1;
+delete from users;
+AlTER SEQUENCE users_id_seq RESTART with 1;
+delete from categories;
+AlTER SEQUENCE categories_id_seq RESTART with 1;
