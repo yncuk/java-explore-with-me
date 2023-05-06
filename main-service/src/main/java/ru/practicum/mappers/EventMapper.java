@@ -8,10 +8,10 @@ import ru.practicum.model.dto.NewEventDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class EventMapper {
@@ -70,18 +70,11 @@ public class EventMapper {
     }
 
     public static List<EventFullDto> mapToEventFullDto(Iterable<Event> events) {
-        List<EventFullDto> dtos = new ArrayList<>();
-        for (Event currentEvent : events) {
-            dtos.add(toEventFullDtoFromEvent(currentEvent));
-        }
-        return dtos;
+        return StreamSupport.stream(events.spliterator(), false)
+                .map(EventMapper::toEventFullDtoFromEvent).collect(Collectors.toList());
     }
 
     public static List<Event> mapToEvent(Iterable<Event> events) {
-        List<Event> dtos = new ArrayList<>();
-        for (Event currentEvent : events) {
-            dtos.add(currentEvent);
-        }
-        return dtos;
+        return StreamSupport.stream(events.spliterator(), false).collect(Collectors.toList());
     }
 }

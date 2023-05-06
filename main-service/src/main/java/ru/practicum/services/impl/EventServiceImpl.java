@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatsClient;
 import ru.practicum.exceptions.EntityBadRequestException;
 import ru.practicum.exceptions.EntityForbiddenException;
@@ -44,6 +45,7 @@ public class EventServiceImpl implements EventService {
                 .stream().skip(from).limit(size).collect(Collectors.toList()));
     }
 
+    @Transactional
     @Override
     public EventFullDto create(Integer userId, NewEventDto newEventDto) {
         validateId(userId);
@@ -84,6 +86,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDtoFromEvent(event);
     }
 
+    @Transactional
     @Override
     public EventFullDto update(Integer userId, Integer eventId, UpdateEventRequest updateEventRequest) {
         validateId(userId);
@@ -109,6 +112,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDtoFromEvent(eventRepository.save(updateCommonFields(event, updateEventRequest)));
     }
 
+    @Transactional
     @Override
     public EventFullDto updateByAdmin(Integer eventId, UpdateEventRequest updateEventRequest) {
         validateId(eventId);
@@ -184,6 +188,7 @@ public class EventServiceImpl implements EventService {
                 .skip(from).limit(size).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public List<EventShortDto> findAllByParamPublic(String text, Integer[] categories, Boolean paid, String rangeStart,
                                                     String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
@@ -262,6 +267,7 @@ public class EventServiceImpl implements EventService {
                 .skip(from).limit(size).sorted(comparator).collect(Collectors.toList()));
     }
 
+    @Transactional
     @Override
     public EventFullDto findByIdPublic(Integer id) {
         validateId(id);
@@ -294,6 +300,7 @@ public class EventServiceImpl implements EventService {
         return requestRepository.findByEvent(eventId);
     }
 
+    @Transactional
     @Override
     public EventRequestStatusUpdateResult updateRequestStatus(Integer userId, Integer eventId, EventRequestStatusUpdateRequest request) {
         validateId(userId);

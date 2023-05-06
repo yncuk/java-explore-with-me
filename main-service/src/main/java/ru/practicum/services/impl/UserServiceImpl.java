@@ -2,6 +2,7 @@ package ru.practicum.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.exceptions.EntityBadRequestException;
 import ru.practicum.model.User;
 import ru.practicum.repositories.UserRepository;
@@ -26,11 +27,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional
     @Override
     public User create(User user) {
         return userRepository.save(user);
     }
 
+    @Transactional
     @Override
     public void delete(Integer userId) {
         validateUserId(userId);

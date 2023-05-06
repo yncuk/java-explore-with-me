@@ -39,7 +39,7 @@ public class StatsClient {
         EndpointHitDto endpointHitDto = new EndpointHitDto();
         endpointHitDto.setApp(application);
         endpointHitDto.setUri(uri);
-        endpointHitDto.setTimestamp(String.valueOf(Timestamp.valueOf(LocalDateTime.now().minusDays(1)))); // минус день для тестов
+        endpointHitDto.setTimestamp(String.valueOf(Timestamp.valueOf(LocalDateTime.now())));
 
         try {
             HttpRequest.BodyPublisher bodyPublisher = HttpRequest

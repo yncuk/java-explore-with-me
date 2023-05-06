@@ -2,6 +2,7 @@ package ru.practicum.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.exceptions.EntityBadRequestException;
 import ru.practicum.mappers.CompilationMapper;
 import ru.practicum.model.Compilation;
@@ -24,6 +25,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
+    @Transactional
     @Override
     public CompilationDto create(NewCompilationDto newCompilationDto) {
         Compilation newCompilation = new Compilation();
@@ -33,6 +35,7 @@ public class CompilationServiceImpl implements CompilationService {
         return CompilationMapper.toCompilationDto(compilationRepository.save(newCompilation));
     }
 
+    @Transactional
     @Override
     public void delete(Integer compId) {
         validateId(compId);
@@ -41,6 +44,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.deleteById(compId);
     }
 
+    @Transactional
     @Override
     public CompilationDto update(Integer compId, NewCompilationDto newCompilationDto) {
         validateId(compId);

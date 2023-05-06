@@ -2,6 +2,7 @@ package ru.practicum.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.exceptions.EntityBadRequestException;
 import ru.practicum.exceptions.EntityForbiddenException;
 import ru.practicum.model.Event;
@@ -28,7 +29,7 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-
+    @Transactional
     @Override
     public Request create(Integer userId, Integer eventId) {
         validateId(userId);
@@ -77,6 +78,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findByRequester(userId);
     }
 
+    @Transactional
     @Override
     public Request delete(Integer userId, Integer requestId) {
         validateId(userId);

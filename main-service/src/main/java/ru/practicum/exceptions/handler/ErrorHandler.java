@@ -27,7 +27,7 @@ public class ErrorHandler {
         return new ErrorResponse(
                 "BAD_REQUEST",
                 e.getMessage(),
-                e.getStackTrace()[0].toString(),
+                e.getCause(),
                 LocalDateTime.now().format(FORMATTER));
     }
 
@@ -38,7 +38,7 @@ public class ErrorHandler {
         return new ErrorResponse(
                 "NOT_FOUND",
                 e.getMessage(),
-                e.getStackTrace()[0].toString(),
+                e.getCause(),
                 LocalDateTime.now().format(FORMATTER));
     }
 
@@ -49,7 +49,7 @@ public class ErrorHandler {
         return new ErrorResponse(
                 "CONFLICT",
                 e.getMessage(),
-                e.getStackTrace()[0].toString(),
+                e.getCause(),
                 LocalDateTime.now().format(FORMATTER));
     }
 
@@ -60,7 +60,7 @@ public class ErrorHandler {
         return new ErrorResponse(
                 "FORBIDDEN",
                 e.getMessage(),
-                e.getStackTrace()[0].toString(),
+                e.getCause(),
                 LocalDateTime.now().format(FORMATTER));
     }
 }

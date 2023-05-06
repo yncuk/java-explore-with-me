@@ -6,6 +6,6 @@ import lombok.Value;
 public class ErrorResponse {
     String status;
     String reason;
-    String message;
+    Throwable message;
     String timestamp;
 }

@@ -2,6 +2,7 @@ package ru.practicum.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.exceptions.EntityBadRequestException;
 import ru.practicum.model.Category;
 import ru.practicum.repositories.CategoryRepository;
@@ -17,11 +18,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    @Transactional
     @Override
     public Category create(Category category) {
         return categoryRepository.save(category);
     }
 
+    @Transactional
     @Override
     public Category patch(Integer catId, Category category) {
         validateCategoryId(catId);
@@ -31,6 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.save(category);
     }
 
+    @Transactional
     @Override
     public void delete(Integer catId) {
         validateCategoryId(catId);
