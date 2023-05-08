@@ -5,6 +5,8 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.model.Category;
 import ru.practicum.model.enums.State;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -42,4 +44,6 @@ public class EventFullDto {
     String title;
 
     Integer views;
+
+    List<CommentShortDto> comments;
 }

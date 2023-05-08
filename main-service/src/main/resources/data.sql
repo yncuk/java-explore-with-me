@@ -1,4 +1,6 @@
 delete from compilations_events;
+delete from comments;
+AlTER SEQUENCE comments_id_seq RESTART with 1;
 delete from compilations;
 AlTER SEQUENCE compilations_id_seq RESTART with 1;
 delete from requests;

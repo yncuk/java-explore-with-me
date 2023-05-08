@@ -4,6 +4,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.model.Category;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -28,4 +30,6 @@ public class EventShortDto {
     String title;
 
     Integer views;
+
+    List<CommentShortDto> comments;
 }
