@@ -13,7 +13,7 @@ import java.util.stream.StreamSupport;
 @UtilityClass
 public class CommentMapper {
 
-    private final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public CommentDto toCommentDto(Comment comment) {
         if (comment.getUpdated() != null) {
