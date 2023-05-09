@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 @UtilityClass
 public class EventMapper {
 
-    private final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public EventShortDto toEventShortDto(Event event) {
         return new EventShortDto(
