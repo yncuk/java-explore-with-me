@@ -30,7 +30,7 @@ public class CategoryAdminController {
     }
 
     @DeleteMapping("/{catId}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable Integer catId) {
+    public ResponseEntity<Void> delete(@PathVariable Integer catId) {
         categoryService.delete(catId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

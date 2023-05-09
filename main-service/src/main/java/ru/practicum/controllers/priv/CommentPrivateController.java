@@ -38,8 +38,8 @@ public class CommentPrivateController {
     }
 
     @DeleteMapping("/{userId}/comments/{commentId}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable Integer userId,
-                                             @PathVariable Integer commentId) {
+    public ResponseEntity<Void> delete(@PathVariable Integer userId,
+                                       @PathVariable Integer commentId) {
         commentService.delete(userId, commentId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

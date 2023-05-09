@@ -1,6 +1,7 @@
 package ru.practicum.controllers.pub;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.dto.CompilationDto;
 import ru.practicum.services.CompilationService;
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/compilations")
 @RequiredArgsConstructor
+@Validated
 public class CompilationPublicController {
 
     private final CompilationService compilationService;

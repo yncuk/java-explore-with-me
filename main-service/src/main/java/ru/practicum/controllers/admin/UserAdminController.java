@@ -34,7 +34,7 @@ public class UserAdminController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable Integer userId) {
+    public ResponseEntity<Void> delete(@PathVariable Integer userId) {
         userService.delete(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

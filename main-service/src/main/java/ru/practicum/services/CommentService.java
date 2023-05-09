@@ -4,6 +4,7 @@ import ru.practicum.model.Comment;
 import ru.practicum.model.dto.CommentDto;
 import ru.practicum.model.dto.NewCommentDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CommentService {
@@ -16,11 +17,11 @@ public interface CommentService {
 
     void delete(Integer userId, Integer commentId);
 
-    List<CommentDto> getAllComments(Integer from, Integer size);
+    List<CommentDto> getAllCommentsByEventId(Integer eventId, Integer from, Integer size);
 
     CommentDto findById(Integer commentId);
 
-    List<Comment> findAllByParam(String text, Integer[] users, Integer[] events, String rangeStart, String rangeEnd, Integer from, Integer size);
+    List<Comment> findAllByParam(String text, Integer[] users, Integer[] events, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size);
 
     void deleteById(Integer commentId);
 }

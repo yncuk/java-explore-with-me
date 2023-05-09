@@ -22,4 +22,6 @@ public class CommentDto {
     String created;
 
     CommentStatus status;
+
+    String updated;
 }

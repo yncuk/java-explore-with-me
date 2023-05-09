@@ -5,13 +5,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.exceptions.EntityBadRequestException;
+import ru.practicum.exceptions.EntityForbiddenException;
 import ru.practicum.mappers.CommentMapper;
 import ru.practicum.model.Comment;
+import ru.practicum.model.Event;
 import ru.practicum.model.QComment;
 import ru.practicum.model.User;
 import ru.practicum.model.dto.CommentDto;
 import ru.practicum.model.dto.NewCommentDto;
 import ru.practicum.model.enums.CommentStatus;
+import ru.practicum.model.enums.State;
 import ru.practicum.repositories.CommentRepository;
 import ru.practicum.repositories.EventRepository;
 import ru.practicum.repositories.UserRepository;
@@ -19,7 +22,6 @@ import ru.practicum.services.CommentService;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +33,6 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
     @Override
@@ -39,12 +40,23 @@ public class CommentServiceImpl implements CommentService {
         validateId(userId);
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Не найден пользователь с ID = %s", userId)));
-        eventRepository.findById(newCommentDto.getEventId())
+        Event event = eventRepository.findById(newCommentDto.getEventId())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Не найдено событие с ID = %s", newCommentDto.getEventId())));
+        if (event.getState() == null) {
+            throw new EntityForbiddenException("Нельзя оставлять комментарии под неопубликованным событием");
+        } else if (!event.getState().equals(State.PUBLISHED)) {
+            throw new EntityForbiddenException("Нельзя оставлять комментарии под неопубликованным событием");
+        }
+        if (event.getComments() == null) {
+            event.setComments(1);
+        } else {
+            event.setComments(event.getComments() + 1);
+        }
         Comment comment = CommentMapper.toComment(newCommentDto);
         comment.setCreated(LocalDateTime.now());
         comment.setStatus(CommentStatus.CREATED);
         comment.setAuthor(author);
+        eventRepository.save(event);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
@@ -71,8 +83,11 @@ public class CommentServiceImpl implements CommentService {
         if (!comment.getEventId().equals(newCommentDto.getEventId())) {
             throw new EntityBadRequestException("Неверно указано события для обновления комментария");
         }
+        if (comment.getCreated().isBefore(LocalDateTime.now().minusHours(1))) {
+            throw new EntityBadRequestException("Нельзя редактировать комментарии, которым больше часа");
+        }
         comment.setText(newCommentDto.getText());
-        comment.setCreated(LocalDateTime.now());
+        comment.setUpdated(LocalDateTime.now());
         comment.setStatus(CommentStatus.UPDATED);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
@@ -93,8 +108,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDto> getAllComments(Integer from, Integer size) {
-        return CommentMapper.allToCommentDto(commentRepository.findAll().stream().skip(from).limit(size).collect(Collectors.toList()));
+    public List<CommentDto> getAllCommentsByEventId(Integer eventId, Integer from, Integer size) {
+        return CommentMapper.allToCommentDto(commentRepository.findAllByEventId(eventId)
+                .stream().skip(from).limit(size).collect(Collectors.toList()));
     }
 
     @Override
@@ -106,7 +122,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> findAllByParam(String text, Integer[] users, Integer[] events,
-                                        String rangeStart, String rangeEnd, Integer from, Integer size) {
+                                        LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         QComment comment = QComment.comment;
         List<BooleanExpression> conditions = new ArrayList<>();
 
@@ -115,40 +131,16 @@ public class CommentServiceImpl implements CommentService {
             conditions.add(comment.text.toLowerCase().like("%" + textLowerCase + "%"));
         }
         if (users != null) {
-            List<BooleanExpression> listUserIds = new ArrayList<>();
-            for (Integer currentUserId : users) {
-                listUserIds.add(comment.author.id.eq(currentUserId));
-            }
-            BooleanExpression listUserIdsCondition = null;
-            if (listUserIds.stream().reduce(BooleanExpression::or).isPresent()) {
-                listUserIdsCondition = listUserIds.stream()
-                        .reduce(BooleanExpression::or)
-                        .get();
-            }
-            if (listUserIdsCondition != null) {
-                conditions.add(listUserIdsCondition);
-            }
+            conditions.add(comment.author.id.in(users));
         }
         if (events != null) {
-            List<BooleanExpression> listEventIds = new ArrayList<>();
-            for (Integer currentEventId : events) {
-                listEventIds.add(comment.eventId.eq(currentEventId));
-            }
-            BooleanExpression listEventIdsCondition = null;
-            if (listEventIds.stream().reduce(BooleanExpression::or).isPresent()) {
-                listEventIdsCondition = listEventIds.stream()
-                        .reduce(BooleanExpression::or)
-                        .get();
-            }
-            if (listEventIdsCondition != null) {
-                conditions.add(listEventIdsCondition);
-            }
+            conditions.add(comment.eventId.in(events));
         }
         if (rangeStart != null) {
-            conditions.add(comment.created.after(LocalDateTime.parse(rangeStart, FORMATTER)));
+            conditions.add(comment.created.after(rangeStart));
         }
         if (rangeEnd != null) {
-            conditions.add(comment.created.before(LocalDateTime.parse(rangeEnd, FORMATTER)));
+            conditions.add(comment.created.before(rangeEnd));
         }
         if (conditions.stream().reduce(BooleanExpression::and).isEmpty()) {
             return new ArrayList<>();

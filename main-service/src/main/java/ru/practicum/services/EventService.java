@@ -5,6 +5,7 @@ import ru.practicum.model.EventRequestStatusUpdateResult;
 import ru.practicum.model.Request;
 import ru.practicum.model.dto.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
@@ -19,10 +20,10 @@ public interface EventService {
     EventFullDto updateByAdmin(Integer eventId, UpdateEventRequest updateEventRequest);
 
     List<EventFullDto> findAllByParamForAdmin(Integer[] users, String[] states, Integer[] categories,
-                                              String rangeStart, String rangeEnd, Integer from, Integer size);
+                                              LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size);
 
-    List<EventShortDto> findAllByParamPublic(String text, Integer[] categories, Boolean paid, String rangeStart,
-                                             String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size);
+    List<EventShortDto> findAllByParamPublic(String text, Integer[] categories, Boolean paid, LocalDateTime rangeStart,
+                                             LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size);
 
     EventFullDto findByIdPublic(Integer id);
 

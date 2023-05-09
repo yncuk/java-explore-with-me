@@ -138,7 +138,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventFullDto> findAllByParamForAdmin(Integer[] users, String[] states, Integer[] categories,
-                                                     String rangeStart, String rangeEnd, Integer from, Integer size) {
+                                                     LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         QEvent event = QEvent.event;
         List<BooleanExpression> conditions = new ArrayList<>();
         if (users != null) {
@@ -172,10 +172,10 @@ public class EventServiceImpl implements EventService {
             }
         }
         if (rangeStart != null) {
-            conditions.add(event.eventDate.after(LocalDateTime.parse(rangeStart, FORMATTER)));
+            conditions.add(event.eventDate.after(rangeStart));
         }
         if (rangeEnd != null) {
-            conditions.add(event.eventDate.before(LocalDateTime.parse(rangeEnd, FORMATTER)));
+            conditions.add(event.eventDate.before(rangeEnd));
         }
         if (conditions.stream().reduce(BooleanExpression::and).isEmpty()) {
             return new ArrayList<>();
@@ -190,8 +190,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public List<EventShortDto> findAllByParamPublic(String text, Integer[] categories, Boolean paid, String rangeStart,
-                                                    String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
+    public List<EventShortDto> findAllByParamPublic(String text, Integer[] categories, Boolean paid, LocalDateTime rangeStart,
+                                                    LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
         QEvent event = QEvent.event;
         List<BooleanExpression> conditions = new ArrayList<>();
         conditions.add(event.state.eq(State.PUBLISHED));
@@ -219,10 +219,10 @@ public class EventServiceImpl implements EventService {
             conditions.add(event.eventDate.after(LocalDateTime.now()));
         }
         if (rangeStart != null) {
-            conditions.add(event.eventDate.after(LocalDateTime.parse(rangeStart, FORMATTER)));
+            conditions.add(event.eventDate.after(rangeStart));
         }
         if (rangeEnd != null) {
-            conditions.add(event.eventDate.before(LocalDateTime.parse(rangeEnd, FORMATTER)));
+            conditions.add(event.eventDate.before(rangeEnd));
         }
         if (onlyAvailable != null) {
             if (onlyAvailable) {

@@ -9,7 +9,6 @@ import ru.practicum.model.enums.State;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "events")
@@ -67,6 +66,5 @@ public class Event {
 
     Integer views;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "eventId")
-    List<Comment> comments;
+    Integer comments;
 }

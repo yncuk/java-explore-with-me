@@ -44,7 +44,8 @@ create table if not exists events
     request_moderation boolean,
     state              varchar,
     title              varchar,
-    views              integer
+    views              integer,
+    comments           integer
 );
 create table if not exists requests
 (
@@ -87,5 +88,6 @@ create table if not exists comments
         constraint comments_users_id_fk
             references users,
     created   timestamp,
-    status    varchar
+    status    varchar,
+    updated   timestamp
 );

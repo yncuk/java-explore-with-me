@@ -35,4 +35,6 @@ public class Comment {
 
     @Enumerated(EnumType.STRING)
     CommentStatus status;
+
+    LocalDateTime updated;
 }
