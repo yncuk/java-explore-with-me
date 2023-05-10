@@ -411,7 +411,7 @@ public class EventServiceImpl implements EventService {
         Map<Integer, Long> newMap = lists.stream().collect(Collectors.toMap(CounterComments::getEventId, CounterComments::getCount));
         for (Event event : list) {
             EventShortDto eventShortDto = EventMapper.toEventShortDto(event);
-            eventShortDto.setComments(newMap.get(event.getId()));
+            eventShortDto.setComments(newMap.getOrDefault(event.getId(), 0L));
             newEvents.add(eventShortDto);
         }
         return newEvents;
@@ -423,7 +423,7 @@ public class EventServiceImpl implements EventService {
         Map<Integer, Long> newMap = lists.stream().collect(Collectors.toMap(CounterComments::getEventId, CounterComments::getCount));
         for (Event event : list) {
             EventFullDto eventFullDto = EventMapper.toEventFullDtoFromEvent(event);
-            eventFullDto.setComments(newMap.get(event.getId()));
+            eventFullDto.setComments(newMap.getOrDefault(event.getId(), 0L));
             newEvents.add(eventFullDto);
         }
         return newEvents;
