@@ -19,23 +19,20 @@ public class StatsClient {
 
     private final String application;
     private final String serverUrl;
-    private final String uri;
     private final ObjectMapper json;
     private final HttpClient httpClient;
 
 
-    public StatsClient(@Value("ewm-main-service") String application,
-                       @Value("http://localhost:9090") String serverUrl,
-                       @Value("/events") String uri,
+    public StatsClient(@Value("${spring.application.name}") String application,
+                       @Value("${services.stats-service.url}") String serverUrl,
                        ObjectMapper json) {
         this.application = application;
         this.serverUrl = serverUrl;
-        this.uri = uri;
         this.json = json;
         this.httpClient = HttpClient.newBuilder().build();
     }
 
-    public void create() {
+    public void create(String uri) {
         EndpointHitDto endpointHitDto = new EndpointHitDto();
         endpointHitDto.setApp(application);
         endpointHitDto.setUri(uri);

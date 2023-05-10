@@ -42,4 +42,6 @@ public class EventFullDto {
     String title;
 
     Integer views;
+
+    Long comments;
 }

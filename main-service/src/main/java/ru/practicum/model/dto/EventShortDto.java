@@ -28,4 +28,6 @@ public class EventShortDto {
     String title;
 
     Integer views;
+
+    Long comments;
 }

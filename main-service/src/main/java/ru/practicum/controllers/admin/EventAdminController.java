@@ -1,6 +1,7 @@
 package ru.practicum.controllers.admin;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.dto.EventFullDto;
@@ -10,6 +11,7 @@ import ru.practicum.services.EventService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -24,8 +26,10 @@ public class EventAdminController {
     public List<EventFullDto> findAllByParamForAdmin(@RequestParam(required = false) Integer[] users,
                                                      @RequestParam(required = false) String[] states,
                                                      @RequestParam(required = false) Integer[] categories,
-                                                     @RequestParam(required = false) String rangeStart,
-                                                     @RequestParam(required = false) String rangeEnd,
+                                                     @RequestParam(required = false)
+                                                     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                                     @RequestParam(required = false)
+                                                     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                                      @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                      @Positive @RequestParam(defaultValue = "10") Integer size) {
         return eventService.findAllByParamForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);

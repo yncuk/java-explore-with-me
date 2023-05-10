@@ -1,6 +1,5 @@
 package ru.practicum.services.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,9 @@ import ru.practicum.services.EventService;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -34,14 +31,15 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
+    private final CommentRepository commentRepository;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private StatsClient statsClient;
+    private final StatsClient statsClient;
 
     @Override
     public List<EventShortDto> findAllByUserId(Integer userId, Integer from, Integer size) {
         validateId(userId);
-        return EventMapper.allToEventShortDto(eventRepository.findAllByUserId(userId)
+        return getWitCommentsAll(eventRepository.findAllByUserId(userId)
                 .stream().skip(from).limit(size).collect(Collectors.toList()));
     }
 
@@ -83,7 +81,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Не найден пользователь с ID = %s", userId)));
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Не найден событие с ID = %s, у пользователя с ID = %s", eventId, userId)));
-        return EventMapper.toEventFullDtoFromEvent(event);
+        return getWithComments(EventMapper.toEventFullDtoFromEvent(event));
     }
 
     @Transactional
@@ -109,7 +107,7 @@ public class EventServiceImpl implements EventService {
                 event.setState(State.CANCELED);
             }
         }
-        return EventMapper.toEventFullDtoFromEvent(eventRepository.save(updateCommonFields(event, updateEventRequest)));
+        return getWithComments(EventMapper.toEventFullDtoFromEvent(eventRepository.save(updateCommonFields(event, updateEventRequest))));
     }
 
     @Transactional
@@ -133,12 +131,12 @@ public class EventServiceImpl implements EventService {
                 event.setState(State.CANCELED);
             }
         }
-        return EventMapper.toEventFullDtoFromEvent(eventRepository.save(updateCommonFields(event, updateEventRequest)));
+        return getWithComments(EventMapper.toEventFullDtoFromEvent(eventRepository.save(updateCommonFields(event, updateEventRequest))));
     }
 
     @Override
     public List<EventFullDto> findAllByParamForAdmin(Integer[] users, String[] states, Integer[] categories,
-                                                     String rangeStart, String rangeEnd, Integer from, Integer size) {
+                                                     LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         QEvent event = QEvent.event;
         List<BooleanExpression> conditions = new ArrayList<>();
         if (users != null) {
@@ -172,10 +170,10 @@ public class EventServiceImpl implements EventService {
             }
         }
         if (rangeStart != null) {
-            conditions.add(event.eventDate.after(LocalDateTime.parse(rangeStart, FORMATTER)));
+            conditions.add(event.eventDate.after(rangeStart));
         }
         if (rangeEnd != null) {
-            conditions.add(event.eventDate.before(LocalDateTime.parse(rangeEnd, FORMATTER)));
+            conditions.add(event.eventDate.before(rangeEnd));
         }
         if (conditions.stream().reduce(BooleanExpression::and).isEmpty()) {
             return new ArrayList<>();
@@ -184,14 +182,14 @@ public class EventServiceImpl implements EventService {
                 .reduce(BooleanExpression::and)
                 .get();
         Iterable<Event> events = eventRepository.findAll(finalCondition);
-        return EventMapper.mapToEventFullDto(events).stream()
-                .skip(from).limit(size).collect(Collectors.toList());
+        return getWitCommentsEventsFullDto(StreamSupport.stream(events.spliterator(), false).collect(Collectors.toList()))
+                .stream().skip(from).limit(size).collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public List<EventShortDto> findAllByParamPublic(String text, Integer[] categories, Boolean paid, String rangeStart,
-                                                    String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
+    public List<EventShortDto> findAllByParamPublic(String text, Integer[] categories, Boolean paid, LocalDateTime rangeStart,
+                                                    LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
         QEvent event = QEvent.event;
         List<BooleanExpression> conditions = new ArrayList<>();
         conditions.add(event.state.eq(State.PUBLISHED));
@@ -219,10 +217,10 @@ public class EventServiceImpl implements EventService {
             conditions.add(event.eventDate.after(LocalDateTime.now()));
         }
         if (rangeStart != null) {
-            conditions.add(event.eventDate.after(LocalDateTime.parse(rangeStart, FORMATTER)));
+            conditions.add(event.eventDate.after(rangeStart));
         }
         if (rangeEnd != null) {
-            conditions.add(event.eventDate.before(LocalDateTime.parse(rangeEnd, FORMATTER)));
+            conditions.add(event.eventDate.before(rangeEnd));
         }
         if (onlyAvailable != null) {
             if (onlyAvailable) {
@@ -256,14 +254,8 @@ public class EventServiceImpl implements EventService {
             }
             eventRepository.save(currentEvent);
         }
-        statsClient = new StatsClient(
-                "ewm-main-service",
-                "http://stats-server:9090",
-                "/events",
-                new ObjectMapper()
-        );
-        statsClient.create();
-        return EventMapper.allToEventShortDto(eventList.stream()
+        statsClient.create("/events");
+        return getWitCommentsAll(eventList.stream()
                 .skip(from).limit(size).sorted(comparator).collect(Collectors.toList()));
     }
 
@@ -279,14 +271,8 @@ public class EventServiceImpl implements EventService {
             event.setViews(event.getViews() + 1);
         }
         eventRepository.save(event);
-        statsClient = new StatsClient(
-                "ewm-main-service",
-                "http://stats-server:9090",
-                "/events/" + id,
-                new ObjectMapper()
-        );
-        statsClient.create();
-        return EventMapper.toEventFullDtoFromEvent(event);
+        statsClient.create("/events/" + id);
+        return getWithComments(EventMapper.toEventFullDtoFromEvent(event));
     }
 
     @Override
@@ -411,5 +397,35 @@ public class EventServiceImpl implements EventService {
                     .get();
         }
         return listCategoryIdsCondition;
+    }
+
+    private EventFullDto getWithComments(EventFullDto eventFullDto) {
+        Optional<CounterComments> count = commentRepository.getCountCommentsByEventId(eventFullDto.getId());
+        count.ifPresent(counterComments -> eventFullDto.setComments(counterComments.getCount()));
+        return eventFullDto;
+    }
+
+    private List<EventShortDto> getWitCommentsAll(List<Event> list) {
+        List<EventShortDto> newEvents = new ArrayList<>();
+        List<CounterComments> lists = commentRepository.getCountCommentsByEvent(list);
+        Map<Integer, Long> newMap = lists.stream().collect(Collectors.toMap(CounterComments::getEventId, CounterComments::getCount));
+        for (Event event : list) {
+            EventShortDto eventShortDto = EventMapper.toEventShortDto(event);
+            eventShortDto.setComments(newMap.getOrDefault(event.getId(), 0L));
+            newEvents.add(eventShortDto);
+        }
+        return newEvents;
+    }
+
+    private List<EventFullDto> getWitCommentsEventsFullDto(List<Event> list) {
+        List<EventFullDto> newEvents = new ArrayList<>();
+        List<CounterComments> lists = commentRepository.getCountCommentsByEvent(list);
+        Map<Integer, Long> newMap = lists.stream().collect(Collectors.toMap(CounterComments::getEventId, CounterComments::getCount));
+        for (Event event : list) {
+            EventFullDto eventFullDto = EventMapper.toEventFullDtoFromEvent(event);
+            eventFullDto.setComments(newMap.getOrDefault(event.getId(), 0L));
+            newEvents.add(eventFullDto);
+        }
+        return newEvents;
     }
 }

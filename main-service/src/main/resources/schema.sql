@@ -75,3 +75,18 @@ create table if not exists compilations_events
         constraint compilations_events_events_id_fk
             references events
 );
+create table if not exists comments
+(
+    id        serial
+        primary key,
+    text      varchar not null,
+    event_id  integer
+        constraint comments_events_id_fk
+            references events,
+    author_id integer
+        constraint comments_users_id_fk
+            references users,
+    created   timestamp,
+    status    varchar,
+    updated   timestamp
+);
