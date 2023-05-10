@@ -23,8 +23,8 @@ public class StatsClient {
     private final HttpClient httpClient;
 
 
-    public StatsClient(@Value("ewm-main-service") String application,
-                       @Value("http://localhost:9090") String serverUrl,
+    public StatsClient(@Value("${spring.application.name}") String application,
+                       @Value("${services.stats-service.url}") String serverUrl,
                        ObjectMapper json) {
         this.application = application;
         this.serverUrl = serverUrl;
