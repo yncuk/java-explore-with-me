@@ -44,8 +44,7 @@ create table if not exists events
     request_moderation boolean,
     state              varchar,
     title              varchar,
-    views              integer,
-    comments           integer
+    views              integer
 );
 create table if not exists requests
 (

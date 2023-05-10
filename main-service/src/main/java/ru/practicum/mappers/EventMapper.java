@@ -29,7 +29,7 @@ public class EventMapper {
                 event.getPaid(),
                 event.getTitle(),
                 event.getViews(),
-                event.getComments()
+                null
         );
     }
 
@@ -67,13 +67,8 @@ public class EventMapper {
                 event.getState(),
                 event.getTitle(),
                 event.getViews(),
-                event.getComments()
+                null
         );
-    }
-
-    public List<EventFullDto> mapToEventFullDto(Iterable<Event> events) {
-        return StreamSupport.stream(events.spliterator(), false)
-                .map(EventMapper::toEventFullDtoFromEvent).collect(Collectors.toList());
     }
 
     public List<Event> mapToEvent(Iterable<Event> events) {

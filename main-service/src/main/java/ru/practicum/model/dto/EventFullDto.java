@@ -43,5 +43,5 @@ public class EventFullDto {
 
     Integer views;
 
-    Integer comments;
+    Long comments;
 }

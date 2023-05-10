@@ -3,7 +3,6 @@ package ru.practicum.controllers.priv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.dto.*;
 import ru.practicum.services.CommentService;
@@ -13,7 +12,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Validated
 public class CommentPrivateController {
 
     private final CommentService commentService;

@@ -65,6 +65,4 @@ public class Event {
     String title;
 
     Integer views;
-
-    Integer comments;
 }

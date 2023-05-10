@@ -2,6 +2,7 @@ package ru.practicum.services.impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.exceptions.EntityBadRequestException;
@@ -24,7 +25,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,16 +48,10 @@ public class CommentServiceImpl implements CommentService {
         } else if (!event.getState().equals(State.PUBLISHED)) {
             throw new EntityForbiddenException("Нельзя оставлять комментарии под неопубликованным событием");
         }
-        if (event.getComments() == null) {
-            event.setComments(1);
-        } else {
-            event.setComments(event.getComments() + 1);
-        }
         Comment comment = CommentMapper.toComment(newCommentDto);
         comment.setCreated(LocalDateTime.now());
         comment.setStatus(CommentStatus.CREATED);
         comment.setAuthor(author);
-        eventRepository.save(event);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
@@ -109,8 +104,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentDto> getAllCommentsByEventId(Integer eventId, Integer from, Integer size) {
-        return CommentMapper.allToCommentDto(commentRepository.findAllByEventId(eventId)
-                .stream().skip(from).limit(size).collect(Collectors.toList()));
+        return CommentMapper.allToCommentDto(commentRepository.findAllByEventId(eventId, PageRequest.of(from, size)));
     }
 
     @Override
@@ -142,15 +136,12 @@ public class CommentServiceImpl implements CommentService {
         if (rangeEnd != null) {
             conditions.add(comment.created.before(rangeEnd));
         }
-        if (conditions.stream().reduce(BooleanExpression::and).isEmpty()) {
+        Optional<BooleanExpression> booleanExpression = conditions.stream().reduce(BooleanExpression::and);
+        if (booleanExpression.isEmpty()) {
             return new ArrayList<>();
         }
-        BooleanExpression finalCondition = conditions.stream()
-                .reduce(BooleanExpression::and)
-                .get();
-        Iterable<Comment> comments = commentRepository.findAll(finalCondition);
-        return CommentMapper.mapToComment(comments).stream()
-                .skip(from).limit(size).collect(Collectors.toList());
+        Iterable<Comment> comments = commentRepository.findAll(booleanExpression.get(), PageRequest.of(from, size));
+        return CommentMapper.mapToComment(comments);
     }
 
     @Transactional

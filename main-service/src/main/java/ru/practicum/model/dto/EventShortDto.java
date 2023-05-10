@@ -29,5 +29,5 @@ public class EventShortDto {
 
     Integer views;
 
-    Integer comments;
+    Long comments;
 }
