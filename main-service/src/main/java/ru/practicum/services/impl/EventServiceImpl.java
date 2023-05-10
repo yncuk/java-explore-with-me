@@ -409,7 +409,7 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> newEvents = new ArrayList<>();
         List<CounterComments> lists = commentRepository.getCountCommentsByEvent(list);
         Map<Integer, Long> newMap = lists.stream().collect(Collectors.toMap(CounterComments::getEventId, CounterComments::getCount));
-        for(Event event : list) {
+        for (Event event : list) {
             EventShortDto eventShortDto = EventMapper.toEventShortDto(event);
             eventShortDto.setComments(newMap.get(event.getId()));
             newEvents.add(eventShortDto);
@@ -421,7 +421,7 @@ public class EventServiceImpl implements EventService {
         List<EventFullDto> newEvents = new ArrayList<>();
         List<CounterComments> lists = commentRepository.getCountCommentsByEvent(list);
         Map<Integer, Long> newMap = lists.stream().collect(Collectors.toMap(CounterComments::getEventId, CounterComments::getCount));
-        for(Event event : list) {
+        for (Event event : list) {
             EventFullDto eventFullDto = EventMapper.toEventFullDtoFromEvent(event);
             eventFullDto.setComments(newMap.get(event.getId()));
             newEvents.add(eventFullDto);

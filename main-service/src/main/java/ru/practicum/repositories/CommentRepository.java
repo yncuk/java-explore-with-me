@@ -19,13 +19,13 @@ public interface CommentRepository extends JpaRepository<Comment, Integer>, Quer
     Optional<Comment> findByAuthor_IdAndId(Integer userId, Integer commentId);
 
     @Query(" select new ru.practicum.model.CounterComments(count(c), c.eventId) from Comment as c " +
-            "left join Event as e on c.eventId = e.id "+
+            "left join Event as e on c.eventId = e.id " +
             "where c.eventId in :eventId " +
             "group by c.eventId")
     Optional<CounterComments> getCountCommentsByEventId(@Param("eventId") Integer eventId);
 
     @Query(" select new ru.practicum.model.CounterComments(count(c), c.eventId) from Comment as c " +
-            "left join Event as e on c.eventId = e.id "+
+            "left join Event as e on c.eventId = e.id " +
             "where e in :event " +
             "group by c.eventId")
     List<CounterComments> getCountCommentsByEvent(@Param("event") List<Event> event);
