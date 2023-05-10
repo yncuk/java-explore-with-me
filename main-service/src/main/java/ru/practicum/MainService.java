@@ -13,7 +13,7 @@ public class MainService {
     }
 
     @Bean
-    public static StatsClient getStatsClient(@Value("${spring.application.name}") String app ,
+    public static StatsClient getStatsClient(@Value("${spring.application.name}") String app,
                                              @Value("${services.stats-service.url}") String url) {
         return new StatsClient(
                 app,
